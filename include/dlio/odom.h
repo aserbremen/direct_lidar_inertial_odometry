@@ -319,6 +319,9 @@ private:
 
   bool adaptive_params_;
 
+  bool write_to_file_;
+  std::string file_path_;
+
   double obs_submap_thresh_;
   double obs_keyframe_thresh_;
   double obs_keyframe_lag_;

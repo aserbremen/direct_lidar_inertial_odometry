@@ -222,6 +222,14 @@ void dlio::OdomNode::getParams() {
   // Adaptive Parameters
   dlio::declare_param(this, "adaptive", this->adaptive_params_, true);
 
+  dlio::declare_param(this, "write_to_file", this->write_to_file_, true);
+  dlio::declare_param(this, "file_path", this->file_path_, "/tmp/dlio_estimate.txt");
+  if (this->write_to_file_) {
+    std::ofstream file;
+    file.open(this->file_path_, std::ios::trunc);
+    file.close();
+  }
+
   // Extrinsics
   std::vector<double> t_default{0., 0., 0.};
   std::vector<double> R_default{1., 0., 0., 0., 1., 0., 0., 0., 1.};
@@ -432,6 +440,15 @@ void dlio::OdomNode::publishToROS(pcl::PointCloud<PointType>::ConstPtr published
   transformStamped.transform.rotation.z = qq.z();
 
   br->sendTransform(transformStamped);
+
+  // write to file: 
+  if (this->write_to_file_) {
+    std::ofstream file;
+    file.open(this->file_path_, std::ios::app);
+    file << this->imu_stamp.seconds() << " " << this->state.p[0] << " " << this->state.p[1] << " " << this->state.p[2]
+         << " " << this->state.q.x() << " " << this->state.q.y() << " " << this->state.q.z() << " " << this->state.q.w() << std::endl;
+    file.close();
+  }
 
 }
 
