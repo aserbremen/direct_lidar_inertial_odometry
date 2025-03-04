@@ -16,6 +16,8 @@
     version: 1.1.1
 
     adaptive: true
+    write_to_file: false
+    file_path: /tmp/dlio_estimate.txt
 
     pointcloud/deskew: true
     pointcloud/voxelize: true
