@@ -223,6 +223,8 @@ private:
 
   Eigen::Vector3f origin;
 
+  bool publish_baselink2imu;
+  bool publish_baselink2lidar;
   struct Extrinsics {
     struct SE3 {
       Eigen::Vector3f t;

@@ -235,6 +235,7 @@ void dlio::OdomNode::getParams() {
   std::vector<double> R_default{1., 0., 0., 0., 1., 0., 0., 0., 1.};
 
   // center of gravity to imu
+  dlio::declare_param(this, "extrinsics/publish_baselink2imu", publish_baselink2imu, false );
   std::vector<double> baselink2imu_t, baselink2imu_R;
   dlio::declare_param(this, "extrinsics/baselink2imu/t", baselink2imu_t, t_default);
   dlio::declare_param(this, "extrinsics/baselink2imu/R", baselink2imu_R, R_default);
@@ -247,6 +248,7 @@ void dlio::OdomNode::getParams() {
   this->extrinsics.baselink2imu_T.block(0, 0, 3, 3) = this->extrinsics.baselink2imu.R;
 
   // center of gravity to lidar
+  dlio::declare_param(this, "extrinsics/publish_baselink2lidar", publish_baselink2lidar, false );
   std::vector<double> baselink2lidar_t, baselink2lidar_R;
   dlio::declare_param(this, "extrinsics/baselink2lidar/t", baselink2lidar_t, t_default);
   dlio::declare_param(this, "extrinsics/baselink2lidar/R", baselink2lidar_R, R_default);
@@ -408,38 +410,42 @@ void dlio::OdomNode::publishToROS(pcl::PointCloud<PointType>::ConstPtr published
   br->sendTransform(transformStamped);
 
   // transform: baselink to imu
-  transformStamped.header.stamp = this->imu_stamp;
-  transformStamped.header.frame_id = this->baselink_frame;
-  transformStamped.child_frame_id = this->imu_frame;
+  if (this->publish_baselink2imu) {
+    transformStamped.header.stamp = this->imu_stamp;
+    transformStamped.header.frame_id = this->baselink_frame;
+    transformStamped.child_frame_id = this->imu_frame;
 
-  transformStamped.transform.translation.x = this->extrinsics.baselink2imu.t[0];
-  transformStamped.transform.translation.y = this->extrinsics.baselink2imu.t[1];
-  transformStamped.transform.translation.z = this->extrinsics.baselink2imu.t[2];
+    transformStamped.transform.translation.x = this->extrinsics.baselink2imu.t[0];
+    transformStamped.transform.translation.y = this->extrinsics.baselink2imu.t[1];
+    transformStamped.transform.translation.z = this->extrinsics.baselink2imu.t[2];
 
-  Eigen::Quaternionf q(this->extrinsics.baselink2imu.R);
-  transformStamped.transform.rotation.w = q.w();
-  transformStamped.transform.rotation.x = q.x();
-  transformStamped.transform.rotation.y = q.y();
-  transformStamped.transform.rotation.z = q.z();
+    Eigen::Quaternionf q(this->extrinsics.baselink2imu.R);
+    transformStamped.transform.rotation.w = q.w();
+    transformStamped.transform.rotation.x = q.x();
+    transformStamped.transform.rotation.y = q.y();
+    transformStamped.transform.rotation.z = q.z();
 
-  br->sendTransform(transformStamped);
+    br->sendTransform(transformStamped);
+  }
 
   // transform: baselink to lidar
-  transformStamped.header.stamp = this->imu_stamp;
-  transformStamped.header.frame_id = this->baselink_frame;
-  transformStamped.child_frame_id = this->lidar_frame;
+  if (this->publish_baselink2lidar) {
+    transformStamped.header.stamp = this->imu_stamp;
+    transformStamped.header.frame_id = this->baselink_frame;
+    transformStamped.child_frame_id = this->lidar_frame;
 
-  transformStamped.transform.translation.x = this->extrinsics.baselink2lidar.t[0];
-  transformStamped.transform.translation.y = this->extrinsics.baselink2lidar.t[1];
-  transformStamped.transform.translation.z = this->extrinsics.baselink2lidar.t[2];
+    transformStamped.transform.translation.x = this->extrinsics.baselink2lidar.t[0];
+    transformStamped.transform.translation.y = this->extrinsics.baselink2lidar.t[1];
+    transformStamped.transform.translation.z = this->extrinsics.baselink2lidar.t[2];
 
-  Eigen::Quaternionf qq(this->extrinsics.baselink2lidar.R);
-  transformStamped.transform.rotation.w = qq.w();
-  transformStamped.transform.rotation.x = qq.x();
-  transformStamped.transform.rotation.y = qq.y();
-  transformStamped.transform.rotation.z = qq.z();
+    Eigen::Quaternionf qq(this->extrinsics.baselink2lidar.R);
+    transformStamped.transform.rotation.w = qq.w();
+    transformStamped.transform.rotation.x = qq.x();
+    transformStamped.transform.rotation.y = qq.y();
+    transformStamped.transform.rotation.z = qq.z();
 
-  br->sendTransform(transformStamped);
+    br->sendTransform(transformStamped);
+  }
 
   // write to file: 
   if (this->write_to_file_) {
