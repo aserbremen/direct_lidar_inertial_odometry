@@ -28,7 +28,7 @@ def generate_launch_description():
 
     # Define arguments
     declare_rviz_arg = DeclareLaunchArgument('rviz', default_value=rviz, description='Launch RViz')
-    share_dir_arg = DeclareLaunchArgument(
+    declare_share_dir_arg = DeclareLaunchArgument(
         'share_dir', default_value=share_dir, description='Path to package share directory'
     )
     declare_dlio_yaml_path_arg = DeclareLaunchArgument(
@@ -97,6 +97,7 @@ def generate_launch_description():
             declare_rviz_arg,
             declare_pointcloud_topic_arg,
             declare_imu_topic_arg,
+            declare_share_dir_arg,
             declare_dlio_yaml_path_arg,
             declare_dlio_params_yaml_path_arg,
             dlio_odom_node,
