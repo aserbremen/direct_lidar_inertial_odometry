@@ -54,4 +54,6 @@ private:
 
   double leaf_size_;
 
+  bool publish_map;
+
 };

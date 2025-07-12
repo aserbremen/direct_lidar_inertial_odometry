@@ -20,8 +20,10 @@ dlio::MapNode::MapNode(): Node("dlio_map_node") {
   this->keyframe_cb_group = this->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
   auto keyframe_sub_opt = rclcpp::SubscriptionOptions();
   keyframe_sub_opt.callback_group = this->keyframe_cb_group;
-  this->keyframe_sub = this->create_subscription<sensor_msgs::msg::PointCloud2>("keyframes", 10,
-      std::bind(&dlio::MapNode::callbackKeyframe, this, std::placeholders::_1), keyframe_sub_opt);
+  if (this->publish_map) {
+    this->keyframe_sub = this->create_subscription<sensor_msgs::msg::PointCloud2>("keyframes", 10,
+        std::bind(&dlio::MapNode::callbackKeyframe, this, std::placeholders::_1), keyframe_sub_opt);
+  }
 
   this->map_pub = this->create_publisher<sensor_msgs::msg::PointCloud2>("map", 100);
 
@@ -41,6 +43,7 @@ void dlio::MapNode::getParams() {
 
   this->declare_parameter<std::string>("odom/odom_frame", "odom");
   this->declare_parameter<double>("map/sparse/leafSize", 0.5);
+  this->declare_parameter<bool>("publish_map", false);
 
   this->get_parameter("odom/odom_frame", this->odom_frame);
   this->get_parameter("map/sparse/leafSize", this->leaf_size_);
