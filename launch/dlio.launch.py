@@ -19,7 +19,6 @@ from launch_ros.substitutions import FindPackageShare
 def generate_launch_description():
 
     # Set default arguments
-    rviz = LaunchConfiguration('rviz', default='false')
     share_dir = LaunchConfiguration('share_dir', default='direct_lidar_inertial_odometry')
     yaml_path = LaunchConfiguration('dlio_yaml_path', default='cfg/dlio.yaml')
     params_yaml_path = LaunchConfiguration('dlio_params_yaml_path', default='cfg/params.yaml')
@@ -27,7 +26,6 @@ def generate_launch_description():
     imu_topic = LaunchConfiguration('imu_topic', default='imu_raw')
 
     # Define arguments
-    declare_rviz_arg = DeclareLaunchArgument('rviz', default_value=rviz, description='Launch RViz')
     declare_share_dir_arg = DeclareLaunchArgument(
         'share_dir', default_value=share_dir, description='Path to package share directory'
     )
@@ -69,39 +67,14 @@ def generate_launch_description():
         ],
     )
 
-    # DLIO Mapping Node
-    dlio_map_node = Node(
-        package='direct_lidar_inertial_odometry',
-        executable='dlio_map_node',
-        output='screen',
-        parameters=[dlio_yaml_path, dlio_params_yaml_path],
-        remappings=tf_remappings
-        + [
-            ('keyframes', 'dlio/odom_node/pointcloud/keyframe'),
-        ],
-    )
-
-    # RViz node
-    rviz_config_path = PathJoinSubstitution([share_dir_path, 'launch', 'dlio.rviz'])
-    rviz_node = Node(
-        package='rviz2',
-        executable='rviz2',
-        name='dlio_rviz',
-        arguments=['-d', rviz_config_path],
-        output='screen',
-        condition=IfCondition(LaunchConfiguration('rviz')),
-    )
 
     return LaunchDescription(
         [
-            declare_rviz_arg,
             declare_pointcloud_topic_arg,
             declare_imu_topic_arg,
             declare_share_dir_arg,
             declare_dlio_yaml_path_arg,
             declare_dlio_params_yaml_path_arg,
             dlio_odom_node,
-            dlio_map_node,
-            rviz_node,
         ]
     )
